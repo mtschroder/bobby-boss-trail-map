@@ -1,0 +1,630 @@
+<title>Bobby Boss Trail Map</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: full-bleed immersive map with slide-out painting panel */
+
+  /* Inlined Leaflet essential styles */
+  .leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+  .leaflet-container{overflow:hidden;font:12px/1.5 "Helvetica Neue",Arial,Helvetica,sans-serif;-webkit-tap-highlight-color:transparent;background:#ddd}
+  .leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+  .leaflet-tile{filter:inherit;visibility:hidden}
+  .leaflet-tile-loaded{visibility:inherit}
+  .leaflet-zoom-animated{-webkit-transform-origin:0 0;transform-origin:0 0}
+  .leaflet-tile-container{pointer-events:none}
+  .leaflet-zoom-anim .leaflet-zoom-animated{will-change:transform;-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}
+  .leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{-webkit-transition:none;transition:none}
+  .leaflet-interactive{cursor:pointer}
+  .leaflet-grab{cursor:grab}
+  .leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}
+  .leaflet-control-zoom{margin:10px}
+  .leaflet-control-zoom a{width:30px;height:30px;line-height:30px;display:block;text-align:center;text-decoration:none;font:bold 18px "Lucida Console",Monaco,monospace}
+  .leaflet-touch .leaflet-control-zoom a{width:36px;height:36px;line-height:36px;font-size:20px}
+  .leaflet-marker-icon,.leaflet-marker-shadow{display:block}
+  .leaflet-container a{color:#0078A8}
+  .leaflet-popup-pane{z-index:700}
+  .leaflet-map-pane svg,.leaflet-map-pane canvas{position:relative}
+  .leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;float:left;clear:both}
+  .leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+  .leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+  .leaflet-top .leaflet-control,.leaflet-bottom .leaflet-control{pointer-events:auto}
+  .leaflet-right .leaflet-control{float:right;margin-right:10px}
+  .leaflet-control-zoom{border-radius:5px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,0.25)}
+  .leaflet-control-zoom a{background:var(--panel-bg,#fff);color:#333;border-bottom:1px solid #ccc}
+  .leaflet-control-zoom a:last-child{border-bottom:none}
+  .leaflet-control-zoom a:hover{background:var(--bg,#f4f4f4)}
+  .leaflet-control-attribution{background:rgba(255,255,255,.7);margin:0;padding:0 5px;font-size:10px}
+  .leaflet-control-attribution a{text-decoration:none}
+  .leaflet-popup{position:absolute;text-align:center;pointer-events:none}
+  .leaflet-popup-content-wrapper{padding:0;text-align:left;border-radius:10px;overflow:hidden;pointer-events:auto;box-shadow:0 4px 24px rgba(0,0,0,0.2)}
+  .leaflet-popup-content{margin:0;min-width:200px}
+  .leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}
+  .leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;-webkit-transform:rotate(45deg);transform:rotate(45deg);background:var(--panel-bg,#fff);box-shadow:0 3px 14px rgba(0,0,0,.2)}
+  .leaflet-popup-close-button{display:none}
+  .leaflet-fade-anim .leaflet-popup{opacity:1;-webkit-transition:opacity .2s linear;transition:opacity .2s linear}
+
+  :root {
+    --bg: #f5f2ec;
+    --fg: #2c2418;
+    --panel-bg: #fffdf8;
+    --accent: #b5703c;
+    --accent-light: #d4a06a;
+    --muted: #8a7e6e;
+    --border: #ddd5c8;
+    --overlay: rgba(44, 36, 24, 0.6);
+    --marker-bg: #b5703c;
+    --marker-border: #fffdf8;
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    padding: 0 !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1a1610;
+      --fg: #e8e0d4;
+      --panel-bg: #231e17;
+      --accent: #d4a06a;
+      --accent-light: #b5703c;
+      --muted: #9a9080;
+      --border: #3a332a;
+      --overlay: rgba(10, 8, 5, 0.75);
+      --marker-bg: #d4a06a;
+      --marker-border: #231e17;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a1610;
+    --fg: #e8e0d4;
+    --panel-bg: #231e17;
+    --accent: #d4a06a;
+    --accent-light: #b5703c;
+    --muted: #9a9080;
+    --border: #3a332a;
+    --overlay: rgba(10, 8, 5, 0.75);
+    --marker-bg: #d4a06a;
+    --marker-border: #231e17;
+    color-scheme: dark;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+  }
+
+  * { box-sizing: border-box; }
+
+  #map {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Muted map tiles */
+  .leaflet-tile-pane {
+    filter: saturate(0.4) brightness(1.05) sepia(0.15);
+  }
+
+  .title-bar {
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    pointer-events: none;
+  }
+
+  .title-bar h1 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--fg);
+    text-shadow: 0 1px 8px rgba(255,255,255,0.7), 0 0 20px rgba(255,255,255,0.5);
+    letter-spacing: 0.01em;
+    pointer-events: auto;
+  }
+
+  .title-bar .subtitle {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-shadow: 0 1px 6px rgba(255,255,255,0.5);
+    display: block;
+    margin-top: 2px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .title-bar h1 {
+      text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+    }
+    :root:not([data-theme="light"]) .title-bar .subtitle {
+      text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    }
+    :root:not([data-theme="light"]) .leaflet-tile-pane {
+      filter: saturate(0.3) brightness(0.7) sepia(0.1);
+    }
+  }
+  :root[data-theme="dark"] .title-bar h1 {
+    text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+  }
+  :root[data-theme="dark"] .title-bar .subtitle {
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="dark"] .leaflet-tile-pane {
+    filter: saturate(0.3) brightness(0.7) sepia(0.1);
+  }
+
+  .panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .panel-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .painting-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(520px, 92vw);
+    z-index: 1200;
+    background: var(--panel-bg);
+    transform: translateX(100%);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+  }
+  .painting-panel.active {
+    transform: translateX(0);
+  }
+
+  .panel-close {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    right: 16px;
+    z-index: 1201;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--panel-bg);
+    color: var(--fg);
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    transition: background 0.2s;
+  }
+  .panel-close:hover { background: var(--border); }
+
+  .panel-image-wrap {
+    position: relative;
+    width: 100%;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .panel-image-wrap img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 55vh;
+    min-height: 240px;
+  }
+
+  .panel-body {
+    padding: 28px 28px 40px;
+    flex: 1;
+  }
+
+  .panel-body .painting-title {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 400;
+    margin: 0 0 6px;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .panel-body .painting-location {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .painting-location svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .panel-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .detail-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .detail-value {
+    font-size: 0.92rem;
+    color: var(--fg);
+  }
+
+  .panel-description {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--fg);
+    margin: 0;
+  }
+
+  .panel-cta {
+    margin-top: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: var(--panel-bg);
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .panel-cta:hover { background: var(--accent-light); }
+
+  .map-hint {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    background: var(--panel-bg);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 8px 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+    white-space: nowrap;
+  }
+  .map-hint.hidden { opacity: 0; }
+
+  .marker-popup {
+    background: var(--panel-bg);
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    width: 220px;
+  }
+  .marker-popup img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    display: block;
+  }
+  .marker-popup-body {
+    padding: 12px 14px;
+  }
+  .marker-popup-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin: 0 0 3px;
+    color: var(--fg);
+  }
+  .marker-popup-loc {
+    font-size: 0.68rem;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    .title-bar h1 { font-size: 1.25rem; }
+    .painting-panel { width: 100vw; }
+    .panel-body { padding: 20px 20px 32px; }
+    .panel-body .painting-title { font-size: 1.4rem; }
+  }
+</style>
+
+<div id="map"></div>
+
+<div class="title-bar">
+  <div>
+    <h1>Bobby Boss Art</h1>
+    <span class="subtitle">Landscape Paintings of the Central Coast</span>
+  </div>
+</div>
+
+<div class="map-hint" id="mapHint">Click a trail marker to explore a painting</div>
+
+<div class="panel-overlay" id="panelOverlay"></div>
+
+<div class="painting-panel" id="paintingPanel">
+  <button class="panel-close" id="panelClose" aria-label="Close">&times;</button>
+  <div class="panel-image-wrap">
+    <img id="panelImage" src="" alt="" />
+  </div>
+  <div class="panel-body">
+    <h2 class="painting-title" id="panelTitle"></h2>
+    <p class="painting-location" id="panelLocation">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span id="panelLocationText"></span>
+    </p>
+    <div class="panel-details" id="panelDetails"></div>
+    <p class="panel-description" id="panelDescription"></p>
+    <a class="panel-cta" href="https://bobbybossart.com/contact/" target="_blank" rel="noopener">
+      Inquire About This Painting
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+    </a>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+<script>
+const PAINTINGS = [
+  {
+    id: 1,
+    title: "The Morro Session",
+    location: "Morro Rock, Morro Bay",
+    lat: 35.3711,
+    lng: -120.8685,
+    medium: "Oil on Canvas",
+    size: '36" x 48"',
+    year: "2021",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/The-Morro-Session-Bobby-Boss-36-x-48-copy-2.jpg",
+    description: "A golden hour session at the iconic Morro Rock. The warm light catches the face of the rock while a lone surfer finds one more wave before dark. This painting captures the essence of Central Coast surf culture — the quiet communion between ocean, stone, and rider."
+  },
+  {
+    id: 2,
+    title: "One More at Molera",
+    location: "Andrew Molera State Park, Big Sur",
+    lat: 36.2870,
+    lng: -121.8530,
+    medium: "Oil on Canvas",
+    size: '18" x 36"',
+    year: "2021",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/01/One-More-at-Molera-Bobby-Boss-18-x-36.jpg",
+    description: "The rugged coastline at Andrew Molera where the Big Sur mountains meet the sea. Painted from the bluff trail overlooking the river mouth break — a place where the scale of nature makes everything else fall away."
+  },
+  {
+    id: 3,
+    title: "Old Creek",
+    location: "Old Creek, Cayucos",
+    lat: 35.4600,
+    lng: -120.8950,
+    medium: "Acrylic on Canvas",
+    size: '16" x 20"',
+    year: "2021",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/Old-Creek-Inspiration-Painting-Bobby-Boss.jpg",
+    description: "The quiet stretch of Old Creek near Cayucos where the coastal oaks frame the rolling hills. Painted from a spot along the trail where the creek opens to a view of golden grasslands against the Pacific sky."
+  },
+  {
+    id: 4,
+    title: "The Bench",
+    location: "Shell Beach Bluffs, Pismo Beach",
+    lat: 35.1635,
+    lng: -120.6920,
+    medium: "Acrylic on Wood",
+    size: '12" x 12"',
+    year: "2021",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/The-Bench-Painting-Bobby-Boss-12-x-12.jpg",
+    description: "A quiet overlook at the Shell Beach bluffs — the kind of bench you find along the coastal trail where someone decided this was the view worth sitting with. The painting captures that pause between movement and stillness."
+  },
+  {
+    id: 5,
+    title: "Spyglass",
+    location: "Shell Beach Road, Shell Beach",
+    lat: 35.1545,
+    lng: -120.6830,
+    medium: "Vinyl on Utility Box (Public Art)",
+    size: "Utility Box Wrap",
+    year: "2021",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/08/IMG_0393-1-scaled.jpg",
+    description: "Part of the Shell Beach Road utility box project. This piece brings Bobby’s coastal vision to the streetscape at the intersection of Shell Beach Road and Placentia — a daily reminder of the beauty just beyond the bluffs."
+  },
+  {
+    id: 6,
+    title: "Madonna Oak Grove",
+    location: "Johnson Ave & Ella St, San Luis Obispo",
+    lat: 35.2560,
+    lng: -120.6750,
+    medium: "Vinyl on Utility Box (SLO Box Art)",
+    size: "Utility Box Wrap",
+    year: "2018",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/IMG_8072-768x1024.jpg",
+    description: "Bobby’s contribution to the SLO Box Art Project — a painting of the ancient oaks studding the foothills of Madonna Mountain. The original painting was selected by the City of San Luis Obispo and vinyl-wrapped onto this utility box."
+  },
+  {
+    id: 7,
+    title: "Newport Pier Sunset",
+    location: "Newport Beach Pier, Newport Beach",
+    lat: 33.6069,
+    lng: -117.9310,
+    medium: "Oil on Wood",
+    size: '30" x 60"',
+    year: "2022",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/IMG_7223-1024x768.jpg",
+    description: "A custom commission for a family in Southern California, this piece captures the warm glow of sunset light washing over Newport Pier. The painting was designed and installed in their beach home — a daily portal to golden hour."
+  },
+  {
+    id: 8,
+    title: "Morro Memory",
+    location: "Morro Bay Estuary, Morro Bay",
+    lat: 35.3530,
+    lng: -120.8490,
+    medium: "Acrylic on Surfboard",
+    size: "9’6″ Longboard",
+    year: "2024",
+    image: "https://bobbybossart.com/wp-content/uploads/sb-instagram-feed-images/464296680_1699924280854817_6002155063637305127_nlow.webp",
+    description: "A memorial commission painted on a beloved longboard. The view of Morro Rock from the estuary was chosen to honor its owner’s deep love of the ocean. Every crack, pressure dent, and ding was preserved — the board tells the story of the man who rode it."
+  },
+  {
+    id: 9,
+    title: "Montana de Oro Bluffs",
+    location: "Spooner’s Cove, Montana de Oro",
+    lat: 35.2725,
+    lng: -120.8870,
+    medium: "Oil on Canvas",
+    size: '24" x 36"',
+    year: "2023",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/IMG_7371-1024x786.jpg",
+    description: "The dramatic sea cliffs and coves of Montana de Oro State Park — one of the most wild and untouched stretches of California coastline. Painted from the bluff trail above Spooner’s Cove during a low-tide afternoon."
+  },
+  {
+    id: 10,
+    title: "Iceland Shelter",
+    location: "Víkurfjara Beach, Iceland",
+    lat: 63.4100,
+    lng: -19.0200,
+    medium: "Oil on Canvas",
+    size: '18" x 24"',
+    year: "2020",
+    image: "https://bobbybossart.com/wp-content/uploads/2021/07/Iceland-Shelter-Painting-Bobby-Boss.jpg",
+    description: "While most of Bobby’s work lives on the Central Coast, his adventure-driven spirit occasionally takes him further afield. This piece captures a solitary shelter on Iceland’s black sand coast — the raw power of a landscape shaped entirely by fire and ice."
+  }
+];
+
+const markerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 44" width="36" height="44" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));cursor:pointer">
+  <path d="M18 0C8.06 0 0 8.06 0 18c0 12.6 16.2 24.84 16.89 25.38a1.8 1.8 0 0 0 2.22 0C19.8 42.84 36 30.6 36 18 36 8.06 27.94 0 18 0z" fill="#b5703c"/>
+  <circle cx="18" cy="17" r="9" fill="#fffdf8" opacity="0.95"/>
+  <path d="M14 20.5l-1.5-2.5h2l1.5-3.5 1.5 3.5h2L18 20.5M12.5 21h11" stroke="#b5703c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M15 17l3-5 3 5" stroke="#b5703c" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>`;
+
+const trailIcon = L.divIcon({
+  html: markerSvg,
+  className: '',
+  iconSize: [36, 44],
+  iconAnchor: [18, 44],
+  popupAnchor: [0, -48]
+});
+
+const map = L.map('map', {
+  center: [35.30, -120.75],
+  zoom: 10,
+  zoomControl: false,
+  attributionControl: true
+});
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+PAINTINGS.forEach(painting => {
+  const marker = L.marker([painting.lat, painting.lng], { icon: trailIcon }).addTo(map);
+
+  const popupHTML = `
+    <div class="marker-popup" onclick="openPanel(${painting.id})">
+      <img src="${painting.image}" alt="${painting.title}" loading="lazy" />
+      <div class="marker-popup-body">
+        <div class="marker-popup-title">${painting.title}</div>
+        <div class="marker-popup-loc">${painting.location}</div>
+      </div>
+    </div>
+  `;
+
+  marker.bindPopup(popupHTML, {
+    maxWidth: 240,
+    minWidth: 220,
+    closeButton: false,
+    className: ''
+  });
+
+  marker.on('click', () => {
+    openPanel(painting.id);
+  });
+});
+
+function openPanel(paintingId) {
+  const painting = PAINTINGS.find(p => p.id === paintingId);
+  if (!painting) return;
+
+  map.closePopup();
+
+  document.getElementById('panelImage').src = painting.image;
+  document.getElementById('panelImage').alt = painting.title;
+  document.getElementById('panelTitle').textContent = painting.title;
+  document.getElementById('panelLocationText').textContent = painting.location;
+  document.getElementById('panelDescription').textContent = painting.description;
+
+  document.getElementById('panelDetails').innerHTML = `
+    <div class="detail-item"><span class="detail-label">Medium</span><span class="detail-value">${painting.medium}</span></div>
+    <div class="detail-item"><span class="detail-label">Size</span><span class="detail-value">${painting.size}</span></div>
+    <div class="detail-item"><span class="detail-label">Year</span><span class="detail-value">${painting.year}</span></div>
+    <div class="detail-item"><span class="detail-label">Location</span><span class="detail-value">${painting.location.split(',')[0]}</span></div>
+  `;
+
+  document.getElementById('panelOverlay').classList.add('active');
+  document.getElementById('paintingPanel').classList.add('active');
+
+  map.flyTo([painting.lat, painting.lng], 13, { duration: 1.2 });
+  document.getElementById('mapHint').classList.add('hidden');
+}
+
+function closePanel() {
+  document.getElementById('panelOverlay').classList.remove('active');
+  document.getElementById('paintingPanel').classList.remove('active');
+  map.flyTo([35.30, -120.75], 10, { duration: 1 });
+}
+
+document.getElementById('panelClose').addEventListener('click', closePanel);
+document.getElementById('panelOverlay').addEventListener('click', closePanel);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+setTimeout(() => { document.getElementById('mapHint').classList.add('hidden'); }, 5000);
+</script>
