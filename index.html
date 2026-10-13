@@ -128,42 +128,20 @@
     pointer-events: none;
   }
 
-  .title-bar h1 {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 400;
-    margin: 0;
-    color: var(--fg);
-    text-shadow: 0 1px 12px rgba(255,255,255,0.8), 0 0 30px rgba(255,255,255,0.4);
-    letter-spacing: 0.01em;
+  .title-bar img {
+    height: 40px;
+    width: auto;
     pointer-events: auto;
-  }
-
-  .title-bar .subtitle {
-    font-family: var(--font-body);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-shadow: 0 1px 8px rgba(255,255,255,0.6);
-    display: block;
-    margin-top: 2px;
+    filter: drop-shadow(0 1px 8px rgba(255,255,255,0.7));
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .title-bar h1 {
-      text-shadow: 0 1px 12px rgba(0,0,0,0.9);
-    }
-    :root:not([data-theme="light"]) .title-bar .subtitle {
-      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+    :root:not([data-theme="light"]) .title-bar img {
+      filter: invert(1) drop-shadow(0 1px 8px rgba(0,0,0,0.7));
     }
   }
-  :root[data-theme="dark"] .title-bar h1 {
-    text-shadow: 0 1px 12px rgba(0,0,0,0.9);
-  }
-  :root[data-theme="dark"] .title-bar .subtitle {
-    text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+  :root[data-theme="dark"] .title-bar img {
+    filter: invert(1) drop-shadow(0 1px 8px rgba(0,0,0,0.7));
   }
 
   .map-hint {
@@ -381,7 +359,7 @@
       padding: 24px 20px 32px;
     }
     .modal-details .painting-title { font-size: 1.35rem; }
-    .title-bar h1 { font-size: 1.25rem; }
+    .title-bar img { height: 30px; }
   }
 
   @media (max-width: 768px) {
@@ -393,10 +371,7 @@
 <div id="map"></div>
 
 <div class="title-bar">
-  <div>
-    <h1>Bobby Boss Art</h1>
-    <span class="subtitle">Landscape Paintings of the Central Coast</span>
-  </div>
+  <img src="logo.webp" alt="Bobby Boss Art" />
 </div>
 
 <div class="map-hint" id="mapHint">Click a trail marker to explore a painting</div>
