@@ -208,6 +208,7 @@
   }
 
   .modal {
+    position: relative;
     display: flex;
     width: 100%;
     max-width: 1200px;
@@ -255,25 +256,23 @@
 
   .modal-close {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 12px;
+    right: 12px;
     z-index: 2001;
     width: 36px;
     height: 36px;
     border-radius: 50%;
     border: none;
-    background: rgba(0,0,0,0.5);
-    color: #fff;
+    background: var(--border);
+    color: var(--fg);
     font-size: 1.2rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background 0.2s;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
   }
-  .modal-close:hover { background: rgba(0,0,0,0.7); }
+  .modal-close:hover { background: var(--muted-light); }
 
   .modal-details .painting-title {
     font-family: var(--font-display);
@@ -404,8 +403,8 @@
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
     <div class="modal-image">
-      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
       <img id="modalImage" src="" alt="" />
     </div>
     <div class="modal-details">
